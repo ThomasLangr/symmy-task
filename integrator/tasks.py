@@ -16,6 +16,16 @@ def get_erp_data(file_name):
     return data
 
 def validate_items(data):
+    # Function that splits erp_data into two sets:
+    # 1. valid_data - this dataset is send to eshop API
+    # 2. invalid_data - this dataset is not send to eshop API, quality errors are uploaded to db
+    # List of checks:
+    # 1. item is not dict
+    # 2. id or title is not in item
+    # 3. price_vat_excl is None or price_vat_excl <= 0
+    # 4. stocks in item is not dict
+    # 5. stocks counts are invalid values
+    
     valid_data = []
     invalid_data = {}
 
@@ -70,7 +80,6 @@ def transform_erp_data(data):
                 }
             }
     
-        # Aggregate price if valid
         # Potential error: What if there are 2 different prices for one SKU? (code will take the last one)
         price = item.get('price_vat_excl')
         if price is not None and price > 0:
@@ -99,7 +108,9 @@ def get_hash(data):
     return hashes
 
 def send_request(method, url, headers, payload):
-    for _ in range(100):
+    # Function sends request POST/PATCH, if it fails with code 429, repeat until succsess. 
+    # Possible endless loop because while True: => for _ in range(100):
+    while True:
         response = requests.request(
             method,
             url,
@@ -136,11 +147,16 @@ def get_mock(method):
     
 @shared_task
 def sync_products(file_name):
+    # Data quality check
     valid_data, invalid_data = validate_items(get_erp_data(file_name))
+    # Validated data transformation
     transformed = transform_erp_data(valid_data)
+    # Hash valid data
     transformed_hash = get_hash(transformed)
+    # Hash invalid data
     invalid_data_hash = get_hash(invalid_data)
 
+    # Save information about invalid items to db
     for id_sku in invalid_data:
         product_hash = invalid_data_hash[id_sku].get('data_hash')
         db_dq, created = DataQualityLog.objects.get_or_create(
@@ -151,38 +167,46 @@ def sync_products(file_name):
         db_dq.error_message = invalid_data[id_sku].get('error_message')
         db_dq.save()
     
-    fail_count = 0
+
+    fail_count = 0 # for 429 response testing
     for id_sku in transformed:        
         product_dict = transformed[id_sku]
         product_hash = transformed_hash[id_sku].get('data_hash')        
+    
+        # Check if id_sku already exists
         db_obj, created = ProductSync.objects.get_or_create(
                 sku = id_sku,
                 defaults = {"data_hash": product_hash})
-                
+        
+        # If item exists and it is the same, skip to next item.
         if not created and db_obj.data_hash == product_hash:
             print(id_sku, " was not updated.")
             continue
             
         
-
+        # If it is not created => POST
         if created:
             method = "POST"
             url = f"{API_URL}/products/"
+        # If it is created => PATCH
         else:
             method = "PATCH"
             url = f"{API_URL}/products/{id_sku}/"
-                
+        
+        # Block for Mocking API calls 
         fail_count += 1    
-        if fail_count.isin([2, 5, 6, 7]):
+        if fail_count in [2, 5, 6, 7]:
             mock_list = [get_mock('FAIL'), get_mock(method)]
         elif fail_count == 4:
             mock_list = [get_mock('FAIL'),get_mock('FAIL'),get_mock('FAIL'), get_mock(method)]
         else:
             mock_list = [get_mock(method)]
-             
+        
+        # Send requests
         with patch("requests.request", side_effect = mock_list):
             response = send_request(method, url, headers, product_dict)
         
+        # If succssesful update db
         if response.status_code == 201 or response.status_code == 200:
             if response.status_code == 201:
                 print(id_sku, " was created.")
