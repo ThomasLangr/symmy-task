@@ -110,7 +110,7 @@ docker compose down
 # task.py description:
 1. Extract: get_erp_data() reads ERP JSON exports and loads them into Python structures.
 2. Validation: validate_items() checks schema and business rules and separates valid and invalid
-records.
+records. (TO-DO: Consistency check)
 3. Transformation: transform_erp_data() converts valid data in ERP format into the e-shop API model, calculates VAT price, aggregates stock and normalizes attributes.
 4. Change Detection: get_hash() generates SHA256 hashes of product data and compares them
 with stored hashes to avoid unnecessary updates.
