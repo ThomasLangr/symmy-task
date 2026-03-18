@@ -98,13 +98,19 @@ from integrator.tasks import sync_products
 Run sync with specific ERP file:
 
 ```python
-sync_products('erp_data')
+sync_products('erp_data') / sync_products.delay('erp_data')
 ```
 
-Run sync with another ERP dataset:
+Run sync with second ERP dataset:
 
 ```python
-sync_products('erp_data_2')
+sync_products('erp_data_2')  / sync_products.delay('erp_data_3')
+```
+
+Run sync with third ERP dataset:
+
+```python
+sync_products('erp_data_3')  / sync_products.delay('erp_data_3')
 ```
 
 Exit the shell:
