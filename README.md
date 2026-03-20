@@ -5,7 +5,9 @@
 * The `sync_products` task reads ERP JSON files and synchronizes products with the e-shop API.
 * Different dataset names (e.g., `erp_data`, `erp_data_2`, `erp_data_3`, `erp_data_4`) allow testing multiple import scenarios.
 
-Flow:
+---
+
+# Introduction:
 * Extract: get_erp_data() reads ERP JSON exports and loads them into Python structures.
 * Validation: erp_data_quality.py consist of two functions validate_items, consistent_items to separate valid and invalid records.
 * Transformation: transform_erp_data() converts valid data from ERP into format of the e-shop API, calculates VAT price, aggregates stock and normalizes attributes.
@@ -124,11 +126,11 @@ Inside the shell:
 from integrator.tasks import sync_products
 ```
 
-Run sync with specific ERP file:
-
-sync_products(data_set_name type str, mock type bool) 
+# sync_products(data_set_name type str, mock type bool) 
 * to test sync DB use mock = True
 * to test retry calls if response status is 429 use mock = False
+
+Run sync with specific ERP file:
 
 ```python: call main function
 sync_products('erp_data', True) / sync_products('erp_data', False) 
