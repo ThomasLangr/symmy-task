@@ -2,16 +2,17 @@ import json
 from collections import defaultdict
 
 def validate_items(data):
-    # Function that splits erp_data into two sets:
-    # 1. valid_data - this dataset is send to eshop API
-    # 2. invalid_data - this dataset is not send to eshop API, quality errors are uploaded to db
-    # List of checks:
-    # 1. item is not dict
-    # 2. id or title is not in item
-    # 3. price_vat_excl is None or price_vat_excl <= 0
-    # 4. stocks in item is not dict
-    # 5. stocks counts are invalid values
-    
+    """
+    Validation function - splits erp_data into two sets:
+    1) valid_data - this dataset is send to eshop API
+    2) invalid_data - this dataset is not send to eshop API, quality errors are uploaded to db
+    List of checks:
+    1) item is not dict
+    2) id or title is not in item
+    3) price_vat_excl is None or price_vat_excl <= 0
+    4) stocks in item is not dict
+    5) stocks counts are invalid values
+    """
     valid_data = []
     invalid_data = {}
     invalid_id_count = 0 
@@ -23,8 +24,8 @@ def validate_items(data):
             if not isinstance(item, dict):
                 error_message += "Item is not a dict. "
 
-            if 'id' not in item or 'title' not in item:
-                error_message += "Missing id or title. "
+            if ('id' not in item) or ('title' not in item) or ('stocks' not in item):
+                error_message += "Missing id, title or stocks. "
                 sku_id = f'invalid_sku_{invalid_id_count}'
                 invalid_id_count += 1
             else: 
@@ -52,7 +53,13 @@ def validate_items(data):
     return valid_data, invalid_data
 
 def consistent_items(data):
-    # returns sku_id with inconsistent values of title, price_vat_excl and attributes
+    """
+    Consistency function - returns sku_id with inconsistent values of:
+    1) title, 
+    2) price_vat_excl,
+    3) attributes
+    """
+
     grouped = defaultdict(list)
 
     # group records by id
