@@ -133,23 +133,36 @@ from integrator.tasks import sync_products
 Run sync with specific ERP file:
 
 ```python: call main function
-sync_products('erp_data', True) / sync_products('erp_data', False) 
+sync_products('erp_data', True) 
+```
+```
+sync_products('erp_data', False) 
 ```
 
 Run sync with second ERP dataset:
 
-```python
-sync_products('erp_data_2', True) / sync_products('erp_data_2', False)
+```python: call main function
+sync_products('erp_data_2', True) 
+```
+```
+sync_products('erp_data_2', False) 
 ```
 
 Run sync with third ERP dataset:
 
-```python
-sync_products('erp_data_3', True) / sync_products('erp_data_3', False)
+```python: call main function
+sync_products('erp_data_3', True) 
+```
+```
+sync_products('erp_data_3', False) 
 ```
 
-```python
-sync_products('erp_data_4', True) / sync_products('erp_data_4', False)
+Run sync with fourth ERP dataset:
+```python: call main function
+sync_products('erp_data_4', True) 
+```
+```
+sync_products('erp_data_4', False) 
 ```
 
 Exit the shell:
