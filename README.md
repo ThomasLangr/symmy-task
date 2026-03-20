@@ -23,18 +23,18 @@
 <summary>symmy-task/</summary>
     
 core/ # Django project settings
-├── init.py
-├── settings.py
-├── celery.py
-├── urls.py
-└── wsgi.py / asgi.py
+* init.py
+* settings.py
+* celery.py
+* urls.py
+* wsgi.py / asgi.py
 
 integrator/ # Main app
-├── init.py
-├── models.py # Django models (ProductSync, DataQualityLog)
-├── tasks.py # Celery tasks (sync_products, sync_single_sku, transform_erp_data, get_erp_data, get_hash, preprocess_erp_data)
-├── erp_data_quality.py # ERP validation & consistency logic (validate_items, consistent_items)
-├── eshop_api_con.py # API header
+* init.py
+* models.py # Django models (ProductSync, DataQualityLog)
+* tasks.py # Celery tasks (sync_products, sync_single_sku, transform_erp_data, get_erp_data, get_hash, preprocess_erp_data)
+* erp_data_quality.py # ERP validation & consistency logic (validate_items, consistent_items)
+* eshop_api_con.py # API header
 
 manage.py
 pytest.ini # test_dqf_transform
